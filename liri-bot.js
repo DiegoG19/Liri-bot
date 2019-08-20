@@ -1,6 +1,6 @@
 require("dotenv").config();
 //create the variables from the keypass.js
-var access1 = reqiure("./keypass.js");
+var access1 = require("./keypass.js");
 var Spotify = require('node-spotify-api');
 //set up the require 
 var spotify = new Spotify(access1.spotify);
@@ -12,7 +12,7 @@ var axios = require('axios');
 var fs = require('fs');
 //create the two user input in terminal
 var input1 = process.argv[2];
-var input2 = process.ergv[3];
+var input2 = process.argv[3];
 // lets create a switch case for the first input
 switch (input1){
     case "concert-this":
@@ -31,7 +31,7 @@ switch (input1){
 //create the function for the cases
 function spotifySong(input2){
     if(!input2){
-        input2 = "Bad Company";
+        input2 = "Gunslinger";
     }
     spotify
     .search({ type: 'track', query: input2})
@@ -77,7 +77,7 @@ function spotifySong(input2){
         });
 
     }
-    //next case 
+    //next case file
     function doThis(){
         fs.readFile("random.txt", "utf8", function(error, data){
             if(error){
@@ -87,23 +87,22 @@ function spotifySong(input2){
             spotifySong(dataArr[0], dataArr[1]);
         })
     }
-    //next case 
-    function concertThis(bandQuery){
-        var queryUrl = "https://rest.bandsintown.com/artists/" + bandQuery + "/events?app_id=codingbootcamp#";
-        console.log(queryUrl);
-        request(queryUrl, function (error, response, body){
-            if(!error && response.statusCode === 200){
-                var concertData = JSON.parse(body);
-                var concertDT = concertData[0].datatime;
-                var momentDT = moment().format('L');
-                var bandResults = 
-                "-------------------------------------" +
-                "Venue Name : " + concertData[0].venue.name +
-                //  Venue location
-                "\nVenue Location: " + concertData[0].venue.city + "," + concertData[0].venue.country +
-                //  Date of the Event (use moment to format this as "MM/DD/YYYY")
-                "\nDate of the Event: " + momentDT;
-                console.log(bandResults);
+    //next case band
+    function concertThis(input2) {
+        axios.get("https://rest.bandsintown.com/artists/" + input2 + "/events?app_id=codingbootcamp")
+        .then(function(response) {    
+            for (var i = 0; i < response.data.length; i++) {
+    
+                var datetime = response.data[i].datetime; 
+                var dateArr = datetime.split('T');
+    
+                var concertResults = 
+                "--------------------------------------------------------------------" +
+                "\nVenue Name: " + response.data[i].venue.name + 
+                "\nVenue Location: " + response.data[i].venue.city +
+                "\nDate of the Event: " + moment(dateArr[0], "MM-DD-YYYY");
+                console.log(concertResults);
+        
             };
         });
     }
